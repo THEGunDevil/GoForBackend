@@ -106,6 +106,30 @@ func (q *Queries) DeleteBookWithTitle(ctx context.Context, title string) (int64,
 	return result.RowsAffected(), nil
 }
 
+const deleteBorrow = `-- name: DeleteBorrow :one
+DELETE FROM borrows
+WHERE book_id = $1 AND user_id = $2
+RETURNING id, user_id, book_id, borrowed_at, returned_at
+`
+
+type DeleteBorrowParams struct {
+	BookID pgtype.Int4
+	UserID pgtype.Int4
+}
+
+func (q *Queries) DeleteBorrow(ctx context.Context, arg DeleteBorrowParams) (Borrow, error) {
+	row := q.db.QueryRow(ctx, deleteBorrow, arg.BookID, arg.UserID)
+	var i Borrow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.BookID,
+		&i.BorrowedAt,
+		&i.ReturnedAt,
+	)
+	return i, err
+}
+
 const listBooks = `-- name: ListBooks :many
 SELECT id, title, author, year, is_borrowed FROM books ORDER BY id
 `
@@ -126,6 +150,60 @@ func (q *Queries) ListBooks(ctx context.Context) ([]Book, error) {
 			&i.Year,
 			&i.IsBorrowed,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listBorrows = `-- name: ListBorrows :many
+SELECT id, user_id, book_id, borrowed_at, returned_at FROM borrows ORDER BY id
+`
+
+func (q *Queries) ListBorrows(ctx context.Context) ([]Borrow, error) {
+	rows, err := q.db.Query(ctx, listBorrows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Borrow
+	for rows.Next() {
+		var i Borrow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.BookID,
+			&i.BorrowedAt,
+			&i.ReturnedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, name, email FROM users ORDER BY id
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(&i.ID, &i.Name, &i.Email); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

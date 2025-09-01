@@ -18,7 +18,7 @@ func main() {
 	fmt.Println("8. Show all user")
 	fmt.Println("9. Filter a user by email or name")
 	fmt.Println("0. exit")
-	app.SelectService()
 	app.FilesReload()
+	app.SelectService()
 
 }

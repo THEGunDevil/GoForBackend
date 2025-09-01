@@ -32,8 +32,8 @@ func SelectService() {
 		Borrow()
 	case 4:
 		ShowAllBooks()
-	// case 5:
-	// 	ReturnBook()
+	case 5:
+		ReturnBook()
 	// case 6:
 	// 	SearchBook()
 	case 7:
@@ -106,6 +106,7 @@ func SaveUsers(users []models.Users) {
 		fmt.Println("Error marshalling users:", err)
 		return
 	}
+
 	err = os.WriteFile(UsersFile, data, 0644)
 	if err != nil {
 		fmt.Println("Error saving users:", err)
@@ -117,6 +118,7 @@ func SaveBorrows(borrows []models.Borrows) {
 		fmt.Println("Error marshalling borrows:", err)
 		return
 	}
+
 	err = os.WriteFile(BorrowsFile, data, 0644)
 	if err != nil {
 		fmt.Println("Error saving borrows:", err)
@@ -127,7 +129,23 @@ func ManagerBookToModel(b manager.Book) models.Book {
 		ID:         b.ID,
 		Title:      b.Title,
 		Author:     b.Author,
-		Year:       int(b.Year.Int32),
+		Year:       b.Year.Int32,
 		IsBorrowed: b.IsBorrowed.Bool, // pgtype.Bool → bool
+	}
+}
+func ManagerBorrowsToModel(b manager.Borrow) models.Borrows {
+	return models.Borrows{
+		ID:         b.ID,
+		UserId:     b.UserID.Int32,
+		BookId:     b.BookID.Int32,
+		BorrowedAt: b.BorrowedAt.Time.String(),
+		ReturnedAt: b.ReturnedAt.Time.String(),
+	}
+}
+func ManagerUsersToModel(u manager.User) models.Users {
+	return models.Users{
+		ID:    u.ID,
+		Name:  u.Name,
+		Email: u.Email.String,
 	}
 }

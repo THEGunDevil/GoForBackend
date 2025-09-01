@@ -11,7 +11,11 @@ INSERT INTO borrows (user_id, book_id, borrowed_at, returned_at) VALUES ($1, $2,
 RETURNING id, user_id, book_id, borrowed_at, returned_at;
 
 -- name: ListBooks :many
-SELECT id, title, author, year, is_borrowed FROM books ORDER BY id;
+SELECT * FROM books ORDER BY id;
+-- name: ListBorrows :many
+SELECT * FROM borrows ORDER BY id;
+-- name: ListUsers :many
+SELECT * FROM users ORDER BY id;
 
 -- name: UpdateBook :one
 UPDATE books
@@ -34,6 +38,12 @@ DELETE FROM books WHERE id = $1;
 
 -- name: DeleteBookWithTitle :execrows
 DELETE FROM books WHERE title = $1;
+
+-- name: DeleteBorrow :one
+DELETE FROM borrows
+WHERE book_id = $1 AND user_id = $2
+RETURNING *;
+
 
 -- name: SearchBooks :many
 SELECT id, title, author, year, is_borrowed
