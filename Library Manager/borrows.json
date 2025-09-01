@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "title": 1,
+    "author": 12,
+    "borrowed_at": "2025-09-01 19:27:15.726682 +0000 UTC",
+    "returned_at": ""
+  },
+  {
+    "id": 2,
+    "title": 1,
+    "author": 12,
+    "borrowed_at": "2025-09-01 19:48:46.599507 +0000 UTC",
+    "returned_at": ""
+  }
+]
