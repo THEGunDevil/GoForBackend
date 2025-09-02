@@ -9,8 +9,13 @@ CREATE TABLE books (
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT UNIQUE
+    email TEXT NOT NULL CHECK (email = LOWER(email))
 );
+
+-- Create case-insensitive unique index
+CREATE UNIQUE INDEX unique_email_lower_idx ON users (LOWER(email));
+
+
 
 CREATE TABLE borrows (
     id SERIAL PRIMARY KEY,

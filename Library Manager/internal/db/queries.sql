@@ -17,6 +17,13 @@ SELECT * FROM borrows ORDER BY id;
 -- name: ListUsers :many
 SELECT * FROM users ORDER BY id;
 
+-- name: FilterUserByName :many
+SELECT * FROM users WHERE LOWER(name) = LOWER($1);
+
+-- name: FilterUserByEmail :one
+SELECT * FROM users WHERE LOWER(email) = LOWER($1);
+
+
 -- name: UpdateBook :one
 UPDATE books
 SET 

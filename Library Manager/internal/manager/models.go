@@ -27,5 +27,5 @@ type Borrow struct {
 type User struct {
 	ID    int32
 	Name  string
-	Email pgtype.Text
+	Email string
 }

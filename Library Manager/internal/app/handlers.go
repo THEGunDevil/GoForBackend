@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
@@ -148,7 +147,7 @@ func AddUser() {
 		}
 		u, err := Queries.CreateUser(Ctx, manager.CreateUserParams{
 			Name:  name,
-			Email: pgtype.Text{String: email, Valid: true},
+			Email: email,
 		})
 		if err != nil {
 			fmt.Println("failed to create user: ", err)
@@ -163,6 +162,7 @@ func DeleteBook() {
 	fmt.Println("Do you want to delete the book with or ID or Name?")
 	fmt.Println("1: With ID,")
 	fmt.Println("2: With Name")
+	fmt.Println("0: Exit")
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimSpace(input)
@@ -204,6 +204,8 @@ func DeleteBook() {
 			fmt.Println("failed to delete book.", err)
 		}
 		fmt.Println("Successfully Deleted a book!")
+	case 0:
+		return
 
 	}
 	FilesReload()
@@ -337,4 +339,99 @@ func ReturnBook() {
 	FilesReload()
 
 	fmt.Println("Book returned successfully!", b)
+}
+
+func FilterUser() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("How do you want to filter the user?")
+	fmt.Println("1: By email,")
+	fmt.Println("2: By name,")
+	fmt.Println("0: Exit,")
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	choice, err := strconv.Atoi(input)
+
+	if err != nil {
+		fmt.Println("Invalid input", err)
+	}
+	for {
+		switch choice {
+		case 1:
+			fmt.Println("Enter user email: ")
+			input, _ := reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+			email := strings.ToLower(input)
+
+			u, err := Queries.FilterUserByEmail(Ctx, email)
+			if err != nil {
+				fmt.Println("Invalid input.", err)
+			}
+			fmt.Println(u)
+			fmt.Println("Filtered user successfully!")
+
+		case 2:
+			fmt.Println("Enter user name: ")
+			input, _ := reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+			name := strings.ToLower(input)
+
+			u, err := Queries.FilterUserByName(Ctx, name)
+			if err != nil {
+				fmt.Println("Invalid input.", err)
+			}
+			fmt.Println(u)
+			fmt.Println("Filtered user successfully!")
+		case 0:
+			return
+		}
+		continue
+	}
+
+}
+
+func Search() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("How do you want to search book?")
+	fmt.Println("1: By title,")
+	fmt.Println("2: By author,")
+	fmt.Println("0: Exit,")
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	choice, err := strconv.Atoi(input)
+
+	if err != nil {
+		fmt.Println("Invalid input", err)
+	}
+	for {
+		switch choice {
+		case 1:
+			fmt.Println("Enter book title: ")
+			input, _ := reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+			title := strings.ToLower(input)
+
+			books, err := Queries.SearchBooks(Ctx, pgtype.Text{String: title,Valid: true})
+			if err != nil {
+				fmt.Println("Invalid input.", err)
+			}
+			fmt.Println(books)
+			fmt.Println("Searched books successfully!")
+
+		case 2:
+			fmt.Println("Enter book author: ")
+			input, _ := reader.ReadString('\n')
+			input = strings.TrimSpace(input)
+			author := strings.ToLower(input)
+
+			books, err := Queries.SearchBooks(Ctx, pgtype.Text{String: author,Valid: true})
+			if err != nil {
+				fmt.Println("Invalid input.", err)
+			}
+			fmt.Println(books)
+			fmt.Println("Searched books successfully!")
+		case 0:
+			return
+		}
+		continue
+	}
 }

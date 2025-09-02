@@ -72,7 +72,7 @@ RETURNING id, name, email
 
 type CreateUserParams struct {
 	Name  string
-	Email pgtype.Text
+	Email string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -128,6 +128,41 @@ func (q *Queries) DeleteBorrow(ctx context.Context, arg DeleteBorrowParams) (Bor
 		&i.ReturnedAt,
 	)
 	return i, err
+}
+
+const filterUserByEmail = `-- name: FilterUserByEmail :one
+SELECT id, name, email FROM users WHERE LOWER(email) = LOWER($1)
+`
+
+func (q *Queries) FilterUserByEmail(ctx context.Context, lower string) (User, error) {
+	row := q.db.QueryRow(ctx, filterUserByEmail, lower)
+	var i User
+	err := row.Scan(&i.ID, &i.Name, &i.Email)
+	return i, err
+}
+
+const filterUserByName = `-- name: FilterUserByName :many
+SELECT id, name, email FROM users WHERE LOWER(name) = LOWER($1)
+`
+
+func (q *Queries) FilterUserByName(ctx context.Context, lower string) ([]User, error) {
+	rows, err := q.db.Query(ctx, filterUserByName, lower)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(&i.ID, &i.Name, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listBooks = `-- name: ListBooks :many

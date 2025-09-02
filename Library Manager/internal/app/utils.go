@@ -11,9 +11,55 @@ import (
 	"strings"
 )
 
+// type DataStore interface {
+//     LoadBooks() ([]models.Book, error)
+//     SaveBooks([]models.Book) error
+
+//     LoadUsers() ([]models.Users, error)
+//     SaveUsers([]models.Users) error
+
+//     LoadBorrows() ([]models.Borrows, error)
+//     SaveBorrows([]models.Borrows) error
+// }
+
 const BooksFile = "books.json"
 const UsersFile = "users.json"
 const BorrowsFile = "borrows.json"
+
+// type JSONStore struct {
+//     BooksFile   string
+//     UsersFile   string
+//     BorrowsFile string
+// }
+
+// var store = JSONStore{
+//     BooksFile:   "books.json",
+//     UsersFile:   "users.json",
+//     BorrowsFile: "borrows.json",
+// }
+
+// func (s *JSONStore) LoadBooks() ([]models.Book, error) {
+//     file, err := os.ReadFile(s.BooksFile)
+//     if err != nil {
+//         return nil, err
+//     }
+//     var books []models.Book
+//     if err := json.Unmarshal(file, &books); err != nil {
+//         return nil, err
+//     }
+//     return books, nil
+// }
+
+// func (s *JSONStore) SaveBooks(books []models.Book) error {
+//     data, err := json.Marshal(books)
+//     if err != nil {
+//         return err
+//     }
+//     return os.WriteFile(s.BooksFile, data, 0644)
+// }
+
+// Similarly implement LoadUsers, SaveUsers, LoadBorrows, SaveBorrows
+
 
 func SelectService() {
 	reader := bufio.NewReader(os.Stdin)
@@ -34,14 +80,14 @@ func SelectService() {
 		ShowAllBooks()
 	case 5:
 		ReturnBook()
-	// case 6:
-	// 	SearchBook()
+	case 6:
+		Search()
 	case 7:
 		AddUser()
-	// case 8:
-	// 	ShowAllUser()
-	// case 9:
-	// 	Filter()
+	case 8:
+		ShowAllUser()
+	case 9:
+		FilterUser()
 	case 0:
 		return
 	default:
@@ -146,6 +192,6 @@ func ManagerUsersToModel(u manager.User) models.Users {
 	return models.Users{
 		ID:    u.ID,
 		Name:  u.Name,
-		Email: u.Email.String,
+		Email: u.Email,
 	}
 }
